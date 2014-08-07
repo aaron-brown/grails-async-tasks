@@ -76,4 +76,14 @@ public interface AsynchronousTask {
      * Gets the error code of a failed task.
      */
     public String getErrorCode()
+
+    /**
+     * Creates a map of all of the properties of the task.
+     */
+    public Map toMap()
+
+    /**
+     * Creates a JSON string of all of the properties of the task.
+     */
+    public String toJson()
 }

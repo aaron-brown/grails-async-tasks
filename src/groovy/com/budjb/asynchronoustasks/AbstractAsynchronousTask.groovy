@@ -1,5 +1,6 @@
 package com.budjb.asynchronoustasks
 
+import groovy.json.JsonBuilder
 import org.apache.log4j.Logger
 
 abstract class AbstractAsynchronousTask implements AsynchronousTask {
@@ -95,5 +96,32 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
             log.error("Unhandled exception caught while running task '${getTaskName()}'", e)
             failure("unhandledException", "unhandled exception '${e.getClass().toString()}' caught while running task")
         }
+    }
+
+    /**
+     * Creates a map of all of the properties of the task.
+     */
+    @Override
+    public Map toMap() {
+        return [
+            'id': this.taskId,
+            'name': this.taskName,
+            'progress': this.progress,
+            'state': this.state.toString(),
+            'description': this.description,
+            'results': this.results,
+            'createdTime': this.createdTime,
+            'startTime': this.startTime,
+            'updatedTime': this.updatedTime,
+            'endTime': this.endTime
+        ]
+    }
+
+    /**
+     * Creates a JSON string of all of the properties of the task.
+     */
+    @Override
+    public String toJson() {
+        return new JsonBuilder(toMap()).toString()
     }
 }

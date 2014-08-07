@@ -32,7 +32,7 @@ grails.project.dependency.resolution = {
               ":rest-client-builder:1.0.2") {
             export = false
         }
-              
+
         runtime ":hibernate:$grailsVersion"
     }
 }
