@@ -5,11 +5,14 @@ import com.budjb.asynchronoustasks.exception.PersistentAsynchronousTaskNotFoundE
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
+/**
+ * An implementation of an asynchronous task that is backed by a database.
+ */
 abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     /**
      * Task domain associated with the given task.
      */
-    private AsynchronousTaskDomain task
+    protected AsynchronousTaskDomain task
 
     /**
      * Creates a brand new task instance.
