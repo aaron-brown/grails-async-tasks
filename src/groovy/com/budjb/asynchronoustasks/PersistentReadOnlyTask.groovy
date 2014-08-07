@@ -13,19 +13,19 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
     public PersistentReadOnlyTask() {
         throw new IllegalStateException("can not create a new read-only task")
     }
-    
+
     /**
      * Loads a task from the database.
-     * 
+     *
      * @param taskId ID of the task in the database.
      */
     public PersistentReadOnlyTask(int taskId) {
         super(taskId)
     }
-    
+
     /**
      * Relies on the task name as stored in the database.
-     * 
+     *
      * @return
      */
     @Override
@@ -112,7 +112,7 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
     public void fire() {
         throw new IllegalStateException("can not fire a read-only task")
     }
-    
+
     /**
      * Disable task modification.
      */
