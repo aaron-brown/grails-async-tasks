@@ -271,6 +271,11 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     private String marshall(Object results) {
+        // Nothing to do if the object is null
+        if (results == null) {
+            return null
+        }
+
         // Nothing to do if it's already a string
         if (results instanceof String) {
             return results
@@ -292,6 +297,11 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     private Object unmarshall(String results) {
+        // Nothing to do if the object is null
+        if (results == null) {
+            return null
+        }
+
         // Attempt to convert from JSON
         try {
             return new JsonSlurper().parseText(results)
