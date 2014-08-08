@@ -104,7 +104,7 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
     @Override
     public Map toMap() {
         return [
-            'id': this.taskId,
+            'taskId': this.taskId,
             'name': this.taskName,
             'progress': this.progress,
             'state': this.state.toString(),
