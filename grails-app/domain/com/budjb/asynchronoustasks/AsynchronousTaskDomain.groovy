@@ -82,5 +82,7 @@ class AsynchronousTaskDomain {
     static mapping = {
         // Disable optimistic locking
         version false
+        results type: 'text'
+        internalTaskData type: 'text'
     }
 }
