@@ -100,6 +100,8 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
 
     /**
      * Creates a map of all of the properties of the task.
+     *
+     * @return
      */
     @Override
     public Map toMap() {
@@ -108,6 +110,7 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
             'name': this.taskName,
             'progress': this.progress,
             'state': this.state.toString(),
+            'errorCode': this.errorCode,
             'description': this.description,
             'results': this.results,
             'createdTime': this.createdTime,
@@ -119,6 +122,8 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
 
     /**
      * Creates a JSON string of all of the properties of the task.
+     *
+     * @return
      */
     @Override
     public String toJson() {
