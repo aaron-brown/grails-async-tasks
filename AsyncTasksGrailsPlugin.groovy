@@ -2,7 +2,7 @@ class AsyncTasksGrailsPlugin {
     /**
      * Plugin version.
      */
-    def version = "0.0.7"
+    def version = "0.0.8"
 
     /**
      * Title of the plugin.
@@ -28,11 +28,6 @@ class AsyncTasksGrailsPlugin {
      * Required Grails version.
      */
     def grailsVersion = "2.1 > *"
-
-    /**
-     * Plugin dependencies
-     */
-    def dependsOn = ['hibernate': '2.0.0 > *']
 
     /**
      * Resources that are excluded from plugin packaging.
