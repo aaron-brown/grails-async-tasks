@@ -2,7 +2,7 @@ class AsyncTasksGrailsPlugin {
     /**
      * Plugin version.
      */
-    def version = "0.0.8"
+    def version = "0.1.0"
 
     /**
      * Title of the plugin.
