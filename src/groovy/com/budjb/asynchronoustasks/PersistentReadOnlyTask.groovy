@@ -37,8 +37,8 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
      * Disable task modification.
      */
     @Override
-    protected void start() {
-        throw new IllegalStateException("can not start a read-only task")
+    protected void onStart() {
+        throw new IllegalStateException("can not onStart a read-only task")
     }
 
     /**
@@ -109,8 +109,8 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
      * Disable task modification.
      */
     @Override
-    public void fire() {
-        throw new IllegalStateException("can not fire a read-only task")
+    public void run() {
+        throw new IllegalStateException("can not run a read-only task")
     }
 
     /**

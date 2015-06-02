@@ -1,89 +1,84 @@
 package com.budjb.asynchronoustasks
 
-public interface AsynchronousTask {
+interface AsynchronousTask {
     /**
      * Returns the task ID of the task.
      *
      * @return
      */
-    public int getTaskId()
+    int getTaskId()
 
     /**
      * Returns the task name.
      */
-    public String getTaskName()
+    String getTaskName()
 
     /**
      * Gets the current progress of the task.
      *
      * @return
      */
-    public int getProgress()
+    int getProgress()
 
     /**
      * Gets the description of the current step of the task.
      */
-    public String getDescription()
+    String getDescription()
 
     /**
      * Gets the results associated with a task that has ended.
      *
      * @return
      */
-    public Object getResults()
+    Object getResults()
 
     /**
      * Gets the current state of the task.
      *
      * @return
      */
-    public AsynchronousTaskState getState()
+    AsynchronousTaskState getState()
 
     /**
      * Gets the time when the task was created.
      *
      * @return
      */
-    public Date getCreatedTime()
+    Date getCreatedTime()
 
     /**
      * Gets the time when the task was last updated.
      *
      * @return
      */
-    public Date getUpdatedTime()
+    Date getUpdatedTime()
 
     /**
      * Gets the time when the task was started.
      *
      * @return
      */
-    public Date getStartTime()
+    Date getStartTime()
 
     /**
      * Gets the time when the task was ended.
      *
      * @return
      */
-    public Date getEndTime()
+    Date getEndTime()
 
     /**
      * Runs the task.
      */
-    public void fire()
+    void run()
 
     /**
      * Gets the error code of a failed task.
      */
-    public String getErrorCode()
+    String getErrorCode()
 
     /**
      * Creates a map of all of the properties of the task.
      */
-    public Map toMap()
-
-    /**
-     * Creates a JSON string of all of the properties of the task.
-     */
-    public String toJson()
+    Map toMap()
 }

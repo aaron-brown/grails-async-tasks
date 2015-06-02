@@ -17,11 +17,17 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     /**
      * Creates a brand new task instance.
      */
-    public PersistentAsynchronousTask() {
-        AsynchronousTaskDomain task = new AsynchronousTaskDomain()
+    PersistentAsynchronousTask() {
+        task = new AsynchronousTaskDomain()
         task.name = getTaskName()
+        save()
+    }
+
+    /**
+     * Saves the task to the database.
+     */
+    protected void save() {
         task.save(flush: true, failOnError: true)
-        this.task = task
     }
 
     /**
@@ -29,7 +35,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      *
      * @param taskId
      */
-    public PersistentAsynchronousTask(int taskId) {
+    PersistentAsynchronousTask(int taskId) {
         // Load the task
         try {
             task = AsynchronousTaskDomain.read(taskId)
@@ -50,7 +56,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     @Override
-    public int getTaskId() {
+    int getTaskId() {
         return task.id
     }
 
@@ -60,7 +66,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     @Override
-    public int getProgress() {
+    int getProgress() {
         return task.progress
     }
 
@@ -70,7 +76,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     @Override
-    public String getDescription() {
+    String getDescription() {
         return task.description
     }
 
@@ -80,8 +86,8 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     @Override
-    public Object getResults() {
-        return unmarshall(task.results)
+    Object getResults() {
+        return unserialize(task.results)
     }
 
     /**
@@ -90,7 +96,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     @Override
-    public AsynchronousTaskState getState() {
+    AsynchronousTaskState getState() {
         return task.state
     }
 
@@ -100,7 +106,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     @Override
-    public Date getCreatedTime() {
+    Date getCreatedTime() {
         return task.dateCreated
     }
 
@@ -110,7 +116,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     @Override
-    public Date getUpdatedTime() {
+    Date getUpdatedTime() {
         return task.lastUpdated
     }
 
@@ -120,7 +126,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     @Override
-    public Date getStartTime() {
+    Date getStartTime() {
         return task.startTime
     }
 
@@ -130,7 +136,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     @Override
-    public Date getEndTime() {
+    Date getEndTime() {
         return task.endTime
     }
 
@@ -138,7 +144,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * Gets the error code associated with a failed task.
      */
     @Override
-    public String getErrorCode() {
+    String getErrorCode() {
         return task.errorCode
     }
 
@@ -146,11 +152,11 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * Marks a task as started.
      */
     @Override
-    protected void start() {
+    protected void onStart() {
         task.state = AsynchronousTaskState.RUNNING
         task.startTime = new Date()
         task.progress = 0
-        task.save(flush: true, failOnError: true)
+        save()
     }
 
     /**
@@ -173,7 +179,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     protected void update(int progress, String description) {
         task.progress = progress
         task.description = description
-        task.save(flush: true, failOnError: true)
+        save()
     }
 
     /**
@@ -259,9 +265,9 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     private void completeTask(AsynchronousTaskState state, String errorCode, Object results) {
         task.errorCode = errorCode
         task.state = state
-        task.results = marshall(results)
+        task.results = serialize(results)
         task.endTime = new Date()
-        task.save(flush: true, failOnError: true)
+        save()
     }
 
     /**
@@ -270,7 +276,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @param results
      * @return
      */
-    private String marshall(Object results) {
+    private String serialize(Object results) {
         // Nothing to do if the object is null
         if (results == null) {
             return null
@@ -296,7 +302,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @param results
      * @return
      */
-    private Object unmarshall(String results) {
+    private Object unserialize(String results) {
         // Nothing to do if the object is null
         if (results == null) {
             return null
@@ -319,7 +325,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     protected Object getInternalTaskData() {
-        return unmarshall(task.internalTaskData)
+        return unserialize(task.internalTaskData)
     }
 
     /**
@@ -328,6 +334,6 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @param data
      */
     protected void setInternalTaskData(Object data) {
-        task.internalTaskData = marshall(data)
+        task.internalTaskData = serialize(data)
     }
 }

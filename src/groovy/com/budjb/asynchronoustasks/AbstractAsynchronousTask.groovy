@@ -1,18 +1,35 @@
 package com.budjb.asynchronoustasks
 
-import groovy.json.JsonBuilder
 import org.apache.log4j.Logger
 
 abstract class AbstractAsynchronousTask implements AsynchronousTask {
     /**
      * Logger.
      */
-    Logger log = Logger.getLogger(getClass())
+    protected Logger log = Logger.getLogger(getClass())
 
     /**
-     * Starts a task.
+     * Called before a task starts.
      */
-    abstract protected void start()
+    protected void onStart() {
+
+    }
+
+    /**
+     * Called when a task completes successfully.
+     */
+    protected void onSuccess() {
+
+    }
+
+    /**
+     * Called when a task completes unsuccessfully.
+     *
+     * @param e
+     */
+    protected void onError(Throwable e) {
+
+    }
 
     /**
      * Updates the progress of the task.
@@ -77,24 +94,19 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
     abstract protected void process()
 
     /**
-     * Returns the task's name.
-     *
-     * @return
-     */
-    public abstract String getTaskName()
-
-    /**
      * Marks the task as started and starts actual processing.
      */
     @Override
-    public void fire() {
+    void run() {
         try {
-            start()
+            onStart()
             process()
+            onSuccess()
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             log.error("Unhandled exception caught while running task '${getTaskName()}'", e)
             failure("unhandledException", "unhandled exception '${e.getClass().toString()}' caught while running task")
+            onError(e)
         }
     }
 
@@ -104,29 +116,19 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
      * @return
      */
     @Override
-    public Map toMap() {
+    Map toMap() {
         return [
-            'taskId': this.taskId,
-            'name': this.taskName,
-            'progress': this.progress,
-            'state': this.state.toString(),
-            'errorCode': this.errorCode,
+            'taskId'     : this.taskId,
+            'name'       : this.taskName,
+            'progress'   : this.progress,
+            'state'      : this.state.toString(),
+            'errorCode'  : this.errorCode,
             'description': this.description,
-            'results': this.results,
+            'results'    : this.results,
             'createdTime': this.createdTime,
-            'startTime': this.startTime,
+            'startTime'  : this.startTime,
             'updatedTime': this.updatedTime,
-            'endTime': this.endTime
+            'endTime'    : this.endTime
         ]
-    }
-
-    /**
-     * Creates a JSON string of all of the properties of the task.
-     *
-     * @return
-     */
-    @Override
-    public String toJson() {
-        return new JsonBuilder(toMap()).toString()
     }
 }
