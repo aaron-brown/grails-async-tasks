@@ -19,12 +19,12 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     /**
      * Creates a brand new task instance.
      */
-    PersistentAsynchronousTask() {
+    PersistentAsynchronousTask(String taskName, String description) {
         withSession {
             AsynchronousTaskDomain domain = new AsynchronousTaskDomain()
 
-            domain.name = getTaskName()
-            domain.description = getDescription()
+            domain.name = taskName
+            domain.description = description
 
             if (!domain.validate()) {
                 throw new ValidationException("can not create a domain instance for task ${getTaskName()} due to validation errors", domain.errors)
@@ -36,6 +36,9 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
 
             createdTime = domain.dateCreated
             updatedTime = domain.lastUpdated
+
+            this.taskName = taskName
+            this.description = description
         }
     }
 
@@ -98,6 +101,9 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
                 }
 
                 this.taskId = taskId
+
+                taskName = domain.name
+                description = domain.description
 
                 createdTime = domain.dateCreated
                 updatedTime = domain.lastUpdated
