@@ -2,6 +2,7 @@ package com.budjb.asynchronoustasks
 
 import com.budjb.asynchronoustasks.exception.PersistentAsynchronousTaskLoadException
 import com.budjb.asynchronoustasks.exception.PersistentAsynchronousTaskNotFoundException
+import grails.validation.ValidationException
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import org.apache.log4j.Logger
@@ -10,6 +11,9 @@ import org.apache.log4j.Logger
  * An implementation of an asynchronous task that is backed by a database.
  */
 abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
+    /**
+     * Logger.
+     */
     Logger log = Logger.getLogger(PersistentAsynchronousTask)
 
     /**
@@ -18,8 +22,14 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     PersistentAsynchronousTask() {
         withSession {
             AsynchronousTaskDomain domain = new AsynchronousTaskDomain()
+
             domain.name = getTaskName()
             domain.description = getDescription()
+
+            if (!domain.validate()) {
+                throw new ValidationException("can not create a domain instance for task ${getTaskName()} due to validation errors", domain.errors)
+            }
+
             domain.save(flush: true, failOnError: true)
 
             taskId = domain.id
@@ -32,7 +42,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     /**
      * Saves the task to the database.
      */
-    protected void save() {
+    void save() {
         withSession {
             AsynchronousTaskDomain domain = AsynchronousTaskDomain.get(taskId)
 
@@ -52,8 +62,25 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
             domain.internalTaskData = serialize(getInternalTaskData())
             domain.results = serialize(getResults())
 
+            if (!domain.validate()) {
+                throw new ValidationException("task ${getTaskName()} with ID ${domain.id} does not validate", domain.errors)
+            }
+
             domain.save(flush: true, failOnError: true)
         }
+    }
+
+    /**
+     * Does a batch of processes before saving the changes to database at the end.
+     *
+     * @param c
+     */
+    void save(Closure c) {
+        c.delegate = this
+        c.resolveStrategy = Closure.DELEGATE_FIRST
+        c.call()
+
+        save()
     }
 
     /**
@@ -102,8 +129,6 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
         state = AsynchronousTaskState.RUNNING
         startTime = new Date()
         progress = 0
-
-        save()
     }
 
     /**
@@ -139,8 +164,6 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
         this.progress = progress
         this.currentOperation = currentOperation
         this.results = results
-
-        save()
     }
 
     /**
@@ -226,8 +249,6 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
         this.state = state
         this.results = results
         this.endTime = new Date()
-
-        save()
     }
 
     /**

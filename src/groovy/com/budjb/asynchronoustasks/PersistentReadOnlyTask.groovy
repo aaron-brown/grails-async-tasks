@@ -123,7 +123,7 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
      * Disable task modification.
      */
     @Override
-    protected void save() {
+    void save() {
         throw new IllegalStateException("can not save a read-only task")
     }
 }
