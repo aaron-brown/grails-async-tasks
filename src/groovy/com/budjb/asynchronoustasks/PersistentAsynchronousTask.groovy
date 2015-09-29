@@ -2,32 +2,85 @@ package com.budjb.asynchronoustasks
 
 import com.budjb.asynchronoustasks.exception.PersistentAsynchronousTaskLoadException
 import com.budjb.asynchronoustasks.exception.PersistentAsynchronousTaskNotFoundException
+import grails.validation.ValidationException
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import org.apache.log4j.Logger
 
 /**
  * An implementation of an asynchronous task that is backed by a database.
  */
 abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     /**
-     * Task domain associated with the given task.
+     * Logger.
      */
-    protected AsynchronousTaskDomain task
+    Logger log = Logger.getLogger(PersistentAsynchronousTask)
 
     /**
      * Creates a brand new task instance.
      */
     PersistentAsynchronousTask() {
-        task = new AsynchronousTaskDomain()
-        task.name = getTaskName()
-        save()
+        withSession {
+            AsynchronousTaskDomain domain = new AsynchronousTaskDomain()
+
+            domain.name = getTaskName()
+            domain.description = getDescription()
+
+            if (!domain.validate()) {
+                throw new ValidationException("can not create a domain instance for task ${getTaskName()} due to validation errors", domain.errors)
+            }
+
+            domain.save(flush: true, failOnError: true)
+
+            taskId = domain.id
+
+            createdTime = domain.dateCreated
+            updatedTime = domain.lastUpdated
+        }
     }
 
     /**
      * Saves the task to the database.
      */
-    protected void save() {
-        task.save(flush: true, failOnError: true)
+    void save() {
+        withSession {
+            AsynchronousTaskDomain domain = AsynchronousTaskDomain.get(taskId)
+
+            domain.name = getTaskName()
+            domain.description = getDescription()
+
+            domain.dateCreated = getCreatedTime()
+            domain.lastUpdated = getUpdatedTime()
+            domain.startTime = getStartTime()
+            domain.endTime = getEndTime()
+
+            domain.errorCode = getErrorCode()
+            domain.progress = getProgress()
+            domain.currentOperation = getCurrentOperation()
+            domain.state = getState()
+
+            domain.internalTaskData = serialize(getInternalTaskData())
+            domain.results = serialize(getResults())
+
+            if (!domain.validate()) {
+                throw new ValidationException("task ${getTaskName()} with ID ${domain.id} does not validate", domain.errors)
+            }
+
+            domain.save(flush: true, failOnError: true)
+        }
+    }
+
+    /**
+     * Does a batch of processes before saving the changes to database at the end.
+     *
+     * @param c
+     */
+    void save(Closure c) {
+        c.delegate = this
+        c.resolveStrategy = Closure.DELEGATE_FIRST
+        c.call()
+
+        save()
     }
 
     /**
@@ -36,116 +89,36 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @param taskId
      */
     PersistentAsynchronousTask(int taskId) {
-        // Load the task
         try {
-            task = AsynchronousTaskDomain.read(taskId)
+            withSession {
+                AsynchronousTaskDomain domain = AsynchronousTaskDomain.read(taskId)
+
+                if (!domain) {
+                    throw new PersistentAsynchronousTaskNotFoundException("task with ID $taskId was not found")
+                }
+
+                this.taskId = taskId
+
+                createdTime = domain.dateCreated
+                updatedTime = domain.lastUpdated
+                startTime = domain.startTime
+                endTime = domain.endTime
+
+                errorCode = domain.errorCode
+                progress = domain.progress
+                currentOperation = domain.currentOperation
+                state = domain.state
+
+                internalTaskData = unserialize(domain.internalTaskData)
+                results = unserialize(domain.results)
+            }
+        }
+        catch (PersistentAsynchronousTaskNotFoundException e) {
+            throw e
         }
         catch (Exception e) {
             throw new PersistentAsynchronousTaskLoadException("Unable to load task with ID '$taskId'", e)
         }
-
-        // Ensure the task was found
-        if (!task) {
-            throw new PersistentAsynchronousTaskNotFoundException("Task with ID '$taskId' was not found")
-        }
-    }
-
-    /**
-     * Returns the task's ID.
-     *
-     * @return
-     */
-    @Override
-    int getTaskId() {
-        return task.id
-    }
-
-    /**
-     * Returns the task's progress.
-     *
-     * @return
-     */
-    @Override
-    int getProgress() {
-        return task.progress
-    }
-
-    /**
-     * Returns the description of the current step in the task.
-     *
-     * @return
-     */
-    @Override
-    String getDescription() {
-        return task.description
-    }
-
-    /**
-     * Returns the results associated with a task that has ended.
-     *
-     * @return
-     */
-    @Override
-    Object getResults() {
-        return unserialize(task.results)
-    }
-
-    /**
-     * Gets the current state of the task.
-     *
-     * @return
-     */
-    @Override
-    AsynchronousTaskState getState() {
-        return task.state
-    }
-
-    /**
-     * Gets the time when the task was created.
-     *
-     * @return
-     */
-    @Override
-    Date getCreatedTime() {
-        return task.dateCreated
-    }
-
-    /**
-     * Gets the time when the task was last updated.
-     *
-     * @return
-     */
-    @Override
-    Date getUpdatedTime() {
-        return task.lastUpdated
-    }
-
-    /**
-     * Gets the time when the task was started.
-     *
-     * @return
-     */
-    @Override
-    Date getStartTime() {
-        return task.startTime
-    }
-
-    /**
-     * Gets the time when the task was ended.
-     *
-     * @return
-     */
-    @Override
-    Date getEndTime() {
-        return task.endTime
-    }
-
-    /**
-     * Gets the error code associated with a failed task.
-     */
-    @Override
-    String getErrorCode() {
-        return task.errorCode
     }
 
     /**
@@ -153,10 +126,9 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      */
     @Override
     protected void onStart() {
-        task.state = AsynchronousTaskState.RUNNING
-        task.startTime = new Date()
-        task.progress = 0
-        save()
+        state = AsynchronousTaskState.RUNNING
+        startTime = new Date()
+        progress = 0
     }
 
     /**
@@ -166,20 +138,32 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      */
     @Override
     protected void update(int progress) {
-        update(progress, task.description)
+        update(progress, currentOperation, results)
     }
 
     /**
      * Updates the progress of the task.
      *
      * @param progress Task's percentage complete.
-     * @param description Description of the current step in the overall process of the task.
+     * @param currentOperation Description of the current operation the task is performing.
      */
     @Override
-    protected void update(int progress, String description) {
-        task.progress = progress
-        task.description = description
-        save()
+    protected void update(int progress, String currentOperation) {
+        update(progress, currentOperation, results)
+    }
+
+    /**
+     * Updates the progress of the task.
+     *
+     * @param progress Task's percentage complete.
+     * @param currentOperation Description of the current operation the task is performing.
+     * @param results Results to store with the task.
+     */
+    @Override
+    protected void update(int progress, String currentOperation, Object results) {
+        this.progress = progress
+        this.currentOperation = currentOperation
+        this.results = results
     }
 
     /**
@@ -239,10 +223,8 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      */
     @Override
     protected void complete(Object results) {
-        // Set the progress to 100% for successfully completed tasks.
-        task.progress = 100
+        progress = 100
 
-        // Complete the task.
         completeTask(AsynchronousTaskState.COMPLETED, null, results)
     }
 
@@ -263,11 +245,10 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @param results Data associated with the completion of the task.
      */
     private void completeTask(AsynchronousTaskState state, String errorCode, Object results) {
-        task.errorCode = errorCode
-        task.state = state
-        task.results = serialize(results)
-        task.endTime = new Date()
-        save()
+        this.errorCode = errorCode
+        this.state = state
+        this.results = results
+        this.endTime = new Date()
     }
 
     /**
@@ -277,22 +258,18 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     private String serialize(Object results) {
-        // Nothing to do if the object is null
         if (results == null) {
             return null
         }
 
-        // Nothing to do if it's already a string
         if (results instanceof String) {
             return results
         }
 
-        // Check for JSON conversion
         if (results instanceof List || results instanceof Map) {
             return new JsonBuilder(results).toString()
         }
 
-        // Return the string representation of the object
         return results.toString()
     }
 
@@ -303,12 +280,10 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
      * @return
      */
     private Object unserialize(String results) {
-        // Nothing to do if the object is null
         if (results == null) {
             return null
         }
 
-        // Attempt to convert from JSON
         try {
             return new JsonSlurper().parseText(results)
         }
@@ -320,20 +295,11 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     }
 
     /**
-     * Returns the internal task state data.
+     * Runs the given closure containing database operations with a new Hibernate session.
      *
-     * @return
+     * @param c
      */
-    protected Object getInternalTaskData() {
-        return unserialize(task.internalTaskData)
-    }
-
-    /**
-     * Sets the internal task state data.
-     *
-     * @param data
-     */
-    protected void setInternalTaskData(Object data) {
-        task.internalTaskData = serialize(data)
+    void withSession(Closure c) {
+        AsynchronousTaskDomain.withNewSession c
     }
 }

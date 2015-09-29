@@ -12,11 +12,17 @@ class AsynchronousTaskDomain {
     String name
 
     /**
-     * A description of the current operation in the task.
+     * A description of task.
+     *
+     */
+    String description
+
+    /**
+     * The current operation the task is performing.
      *
      * This is useful to provide insight into what step a long running process is in.
      */
-    String description
+    String currentOperation
 
     /**
      * State of the task.
@@ -66,21 +72,21 @@ class AsynchronousTaskDomain {
      * Field constraints.
      */
     static constraints = {
-        lastUpdated         nullable: true
-        dateCreated         nullable: true
-        startTime           nullable: true
-        endTime             nullable: true
-        description         nullable: true
-        results             nullable: true
-        internalTaskData    nullable: true
-        errorCode           nullable: true
+        lastUpdated nullable: true
+        dateCreated nullable: true
+        startTime nullable: true
+        endTime nullable: true
+        description nullable: true
+        results nullable: true
+        internalTaskData nullable: true
+        errorCode nullable: true
+        currentOperation nullable: true
     }
 
     /**
      * DB mapping.
      */
     static mapping = {
-        // Disable optimistic locking
         version false
         results type: 'text'
         internalTaskData type: 'text'

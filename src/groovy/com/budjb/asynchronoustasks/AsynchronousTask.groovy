@@ -21,9 +21,16 @@ interface AsynchronousTask {
     int getProgress()
 
     /**
-     * Gets the description of the current step of the task.
+     * Gets a description of the task.
      */
     String getDescription()
+
+    /**
+     * Returns a message regarding the current operation of the task.
+     *
+     * @return
+     */
+    String getCurrentOperation()
 
     /**
      * Gets the results associated with a task that has ended.

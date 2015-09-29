@@ -6,7 +6,72 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
     /**
      * Logger.
      */
-    protected Logger log = Logger.getLogger(getClass())
+    Logger log = Logger.getLogger(getClass())
+
+    /**
+     * ID of the task.
+     */
+    int taskId
+
+    /**
+     * Name of the task.
+     */
+    String taskName
+
+    /**
+     * Description of the task.
+     */
+    String description
+
+    /**
+     * Progress of the task as the percentage complete.
+     */
+    int progress
+
+    /**
+     * Running state of the task.
+     */
+    AsynchronousTaskState state = AsynchronousTaskState.NOT_RUNNING
+
+    /**
+     * Current operation of the task.
+     */
+    String currentOperation
+
+    /**
+     * Error code of the task.
+     */
+    String errorCode
+
+    /**
+     * Results of the task.
+     */
+    Object results
+
+    /**
+     * Internal task data.
+     */
+    Object internalTaskData
+
+    /**
+     * Date the task was created.
+     */
+    Date createdTime
+
+    /**
+     * Date the task was started.
+     */
+    Date startTime
+
+    /**
+     * Date the task was updated.
+     */
+    Date updatedTime
+
+    /**
+     * Date the task completed.
+     */
+    Date endTime
 
     /**
      * Called before a task starts.
@@ -42,9 +107,18 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
      * Updates the progress of the task.
      *
      * @param progress Task's percentage complete.
-     * @param description Description of the current step in the overall process of the task.
+     * @param currentOperation Description of the current operation the task is performing.
      */
-    abstract protected void update(int progress, String description)
+    abstract protected void update(int progress, String currentOperation)
+
+    /**
+     * Updates the progress of the task.
+     *
+     * @param progress Task's percentage complete.
+     * @param currentOperation Description of the current operation the task is performing.
+     * @param results Results to update the task with.
+     */
+    abstract protected void update(int progress, String currentOperation, Object results)
 
     /**
      * Sets the task in an error state.
@@ -98,13 +172,19 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
      */
     @Override
     void run() {
+        if (getState() != AsynchronousTaskState.NOT_RUNNING) {
+            throw new IllegalStateException("can not start task ${getTaskId()} because it has already started")
+        }
+
         try {
             onStart()
+
             process()
+
             onSuccess()
         }
-        catch (Throwable e) {
-            log.error("Unhandled exception caught while running task '${getTaskName()}'", e)
+        catch (Exception e) {
+            log.error("unhandled exception caught while running task '${getTaskName()}' with task ID ${getTaskId()}", e)
             failure("unhandledException", "unhandled exception '${e.getClass().toString()}' caught while running task")
             onError(e)
         }
@@ -118,17 +198,18 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
     @Override
     Map toMap() {
         return [
-            'taskId'     : this.taskId,
-            'name'       : this.taskName,
-            'progress'   : this.progress,
-            'state'      : this.state.toString(),
-            'errorCode'  : this.errorCode,
-            'description': this.description,
-            'results'    : this.results,
-            'createdTime': this.createdTime,
-            'startTime'  : this.startTime,
-            'updatedTime': this.updatedTime,
-            'endTime'    : this.endTime
+            'taskId'          : getTaskId(),
+            'name'            : getTaskName(),
+            'progress'        : getProgress(),
+            'state'           : getState().toString(),
+            'currentOperation': getCurrentOperation(),
+            'errorCode'       : getErrorCode(),
+            'description'     : getDescription(),
+            'results'         : getResults(),
+            'createdTime'     : getCreatedTime(),
+            'startTime'       : getStartTime(),
+            'updatedTime'     : getUpdatedTime(),
+            'endTime'         : getEndTime()
         ]
     }
 }

@@ -24,16 +24,6 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
     }
 
     /**
-     * Relies on the task name as stored in the database.
-     *
-     * @return
-     */
-    @Override
-    public String getTaskName() {
-        return task.name
-    }
-
-    /**
      * Disable task modification.
      */
     @Override
@@ -54,6 +44,14 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
      */
     @Override
     protected void update(int progress, String description) {
+        throw new IllegalStateException("can not update a read-only task")
+    }
+
+    /**
+     * Disable task modification
+     */
+    @Override
+    protected void update(int progress, String currentOperation, Object results) {
         throw new IllegalStateException("can not update a read-only task")
     }
 
@@ -119,5 +117,13 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
     @Override
     protected void process() {
         throw new IllegalStateException("can not process a read-only task")
+    }
+
+    /**
+     * Disable task modification.
+     */
+    @Override
+    void save() {
+        throw new IllegalStateException("can not save a read-only task")
     }
 }
