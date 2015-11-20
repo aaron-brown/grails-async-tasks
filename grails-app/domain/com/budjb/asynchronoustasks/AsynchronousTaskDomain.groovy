@@ -69,6 +69,11 @@ class AsynchronousTaskDomain {
     String errorCode
 
     /**
+     * Resolution suggestion/code
+     */
+    String resolutionCode
+
+    /**
      * Field constraints.
      */
     static constraints = {
@@ -81,6 +86,7 @@ class AsynchronousTaskDomain {
         internalTaskData nullable: true
         errorCode nullable: true
         currentOperation nullable: true
+        resolutionCode nullable: true
     }
 
     /**
