@@ -58,6 +58,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
             domain.endTime = getEndTime()
 
             domain.errorCode = getErrorCode()
+            domain.resolutionCode = getResolutionCode()
             domain.progress = getProgress()
             domain.currentOperation = getCurrentOperation()
             domain.state = getState()
@@ -111,6 +112,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
                 endTime = domain.endTime
 
                 errorCode = domain.errorCode
+                resolutionCode = domain.resolutionCode
                 progress = domain.progress
                 currentOperation = domain.currentOperation
                 state = domain.state
