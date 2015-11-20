@@ -1,3 +1,6 @@
+**Version 0.2.3**
+* Added missing bits for resolutionCode introduced in 0.2.2.
+
 **Version 0.2.2**
 * Added resolutionCode to the standard task payload.
 
