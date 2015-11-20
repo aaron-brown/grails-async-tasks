@@ -44,6 +44,11 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
     String errorCode
 
     /**
+     * Resolution code of the task.
+     */
+    String resolutionCode
+
+    /**
      * Results of the task.
      */
     Object results
@@ -204,6 +209,7 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
             'state'           : getState().toString(),
             'currentOperation': getCurrentOperation(),
             'errorCode'       : getErrorCode(),
+            'resolutionCode'  : getResolutionCode(),
             'description'     : getDescription(),
             'results'         : getResults(),
             'createdTime'     : getCreatedTime(),
