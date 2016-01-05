@@ -1,3 +1,6 @@
+**Version 0.2.4**
+* Change the errorCode property to a text database column type.
+
 **Version 0.2.3**
 * Added missing bits for resolutionCode introduced in 0.2.2.
 
