@@ -96,5 +96,6 @@ class AsynchronousTaskDomain {
         version false
         results type: 'text'
         internalTaskData type: 'text'
+        errorCode type: 'text'
     }
 }
