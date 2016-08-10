@@ -26,7 +26,7 @@ class AsyncTasksGrailsPlugin extends Plugin {
     /**
      * URL to the plugin's documentation.
      */
-    def documentation = "http://budjb.github.io/grails-async-tasks/doc/manual/index.html"
+    def documentation = "http://budjb.github.io/grails-async-tasks/3.x/latest/"
 
     /**
      * License.
