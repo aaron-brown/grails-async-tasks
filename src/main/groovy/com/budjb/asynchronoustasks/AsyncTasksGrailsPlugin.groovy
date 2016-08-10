@@ -1,14 +1,8 @@
-class AsyncTasksGrailsPlugin {
-    /**
-     * Plugin version.
-     */
-    def version = "0.2.4"
+package com.budjb.asynchronoustasks
 
-    /**
-     * Title of the plugin.
-     */
-    def title = "Asynchronous Tasks Plugin"
+import grails.plugins.Plugin
 
+class AsyncTasksGrailsPlugin extends Plugin {
     /**
      * Author.
      */
@@ -27,19 +21,7 @@ class AsyncTasksGrailsPlugin {
     /**
      * Required Grails version.
      */
-    def grailsVersion = "2.1 > *"
-
-    /**
-     * Resources that are excluded from plugin packaging.
-     */
-    def pluginExcludes = [
-        'grails-app/controllers/**',
-        'grails-app/services/**',
-        'grails-app/taglib/**',
-        'grails-app/views/**',
-        'web-app/**',
-        'src/docs/**'
-    ]
+    def grailsVersion = "3.1 > *"
 
     /**
      * URL to the plugin's documentation.

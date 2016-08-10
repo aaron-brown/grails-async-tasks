@@ -295,7 +295,7 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
         try {
             return new JsonSlurper().parseText(results)
         }
-        catch (Exception e) {
+        catch (Exception ignored) {
             // Continue
         }
 

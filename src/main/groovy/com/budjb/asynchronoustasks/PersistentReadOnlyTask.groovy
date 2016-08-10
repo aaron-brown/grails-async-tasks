@@ -8,18 +8,11 @@ package com.budjb.asynchronoustasks
  */
 class PersistentReadOnlyTask extends PersistentAsynchronousTask {
     /**
-     * Disable the base constructor.
-     */
-    public PersistentReadOnlyTask() {
-        throw new IllegalStateException("can not create a new read-only task")
-    }
-
-    /**
      * Loads a task from the database.
      *
      * @param taskId ID of the task in the database.
      */
-    public PersistentReadOnlyTask(int taskId) {
+    PersistentReadOnlyTask(int taskId) {
         super(taskId)
     }
 
@@ -107,7 +100,7 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
      * Disable task modification.
      */
     @Override
-    public void run() {
+    void run() {
         throw new IllegalStateException("can not run a read-only task")
     }
 
