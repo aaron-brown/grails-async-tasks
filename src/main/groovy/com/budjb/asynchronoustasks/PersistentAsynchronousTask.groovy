@@ -5,17 +5,13 @@ import com.budjb.asynchronoustasks.exception.PersistentAsynchronousTaskNotFoundE
 import grails.validation.ValidationException
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-import org.apache.log4j.Logger
+import groovy.util.logging.Slf4j
 
 /**
  * An implementation of an asynchronous task that is backed by a database.
  */
+@Slf4j
 abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
-    /**
-     * Logger.
-     */
-    Logger log = Logger.getLogger(PersistentAsynchronousTask)
-
     /**
      * Creates a brand new task instance.
      */

@@ -1,13 +1,9 @@
 package com.budjb.asynchronoustasks
 
-import org.apache.log4j.Logger
+import groovy.util.logging.Slf4j
 
+@Slf4j
 abstract class AbstractAsynchronousTask implements AsynchronousTask {
-    /**
-     * Logger.
-     */
-    Logger log = Logger.getLogger(getClass())
-
     /**
      * ID of the task.
      */
