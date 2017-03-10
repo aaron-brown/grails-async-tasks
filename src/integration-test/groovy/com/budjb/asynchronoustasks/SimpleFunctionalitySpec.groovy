@@ -13,7 +13,7 @@ class SimpleFunctionalitySpec extends Specification {
             @Override
             protected void process() {
                 save {
-                    complete('simple task completed')
+                    complete(null, 'simple task completed')
                 }
             }
         }

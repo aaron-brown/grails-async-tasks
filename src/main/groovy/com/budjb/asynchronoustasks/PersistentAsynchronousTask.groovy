@@ -242,6 +242,16 @@ abstract class PersistentAsynchronousTask extends AbstractAsynchronousTask {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void complete(String currentOperation, Object results) {
+        this.progress = 100
+        this.currentOperation = currentOperation
+        completeTask(AsynchronousTaskState.COMPLETED, null, results)
+    }
+
+    /**
      * Completes the task with the given state and results.
      *
      * @param state End state of the task.

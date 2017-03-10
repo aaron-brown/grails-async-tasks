@@ -159,13 +159,6 @@ abstract class AbstractAsynchronousTask implements AsynchronousTask {
     /**
      * Completes the task.
      *
-     * @param currentOperation Description of the current operation the task is performing.
-     */
-    abstract protected void complete(String currentOperation)
-
-    /**
-     * Completes the task.
-     *
      * @param results
      */
     abstract protected void complete(Object results)
