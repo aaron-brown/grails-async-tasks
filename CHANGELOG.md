@@ -1,3 +1,6 @@
+**Version 3.0.1**
+* Add `complete` methods that take the current operation as a parameter.
+
 **Version 3.0.0**
 * Migrated plugin to Grails 3.x.
 

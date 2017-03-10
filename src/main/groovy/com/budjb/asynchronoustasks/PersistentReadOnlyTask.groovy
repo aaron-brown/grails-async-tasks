@@ -88,11 +88,21 @@ class PersistentReadOnlyTask extends PersistentAsynchronousTask {
         throw new IllegalStateException("can not complete a read-only task")
     }
 
+    @Override
+    protected void complete(String currentOperation) {
+        throw new IllegalStateException("can not complete a read-only task")
+    }
+
     /**
      * Disable task modification.
      */
     @Override
     protected void complete(Object results) {
+        throw new IllegalStateException("can not complete a read-only task")
+    }
+
+    @Override
+    protected void complete(String currentOperation, Object results) {
         throw new IllegalStateException("can not complete a read-only task")
     }
 
