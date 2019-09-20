@@ -1,5 +1,8 @@
 = Changelog
 
+Version 4.0.0::
+* Migrated plugin to Grails 4.x.
+
 Version 3.0.1::
 * Add `complete` methods that take the current operation as a parameter.
 
